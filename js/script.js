@@ -81,19 +81,27 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
   */
 
+  function addMarkers(options) {
+    const position = options.position;
+    const text = options.text;
+
+    // add the leaflet marker chain
+    L.marker(position).addTo(map).bindPopup(text).openPopup();
+  }
+
   function onHandleMapClick(e) {
     const { latlng } = e;
     const clickedLat = latlng?.lat;
     const clickedLong = latlng?.lng;
 
-    //add marker to map
+    /* add marker to map */
     const clickedPosition = [clickedLat, clickedLong];
+    addMarkers({
+      position: clickedPosition,
+      text: "My pretty CSS popup.<br> Easily customizable.",
+    });
 
-    L.marker(clickedPosition).addTo(map);
-    // .bindPopup('A pretty CSS popup.<br> Easily customizable.')
-    // .openPopup();
-
-    // add marker postions to clickedLocations
+    /* add marker postions to clickedLocations */
     const positionClicked = {
       lat: clickedLat,
       long: clickedLong,
@@ -101,16 +109,16 @@ import { getElement, randomNumber, months } from "./utils.js";
 
     clickedLocations.push(positionClicked);
 
-    // Log the whole array
+    /* Log the whole array */
     console.log("All clicked locations:", clickedLocations);
   }
 
-  // handle all events inside this function then pass it into the init function as one
+  /* MAIN EVENT HANDLER FUNCTION */
   function eventHandlers() {
     if (map) {
-      map.on("click", onHandleMapClick); // this on click event is leaflet speecific
+      map.on("click", onHandleMapClick); // this on click event is leaflet specific
     }
-  }
+  } /*CLOSE MAIN EVENT HANDLER FUNCTION */
 
   /**
   ================
