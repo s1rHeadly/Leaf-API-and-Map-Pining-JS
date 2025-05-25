@@ -2,9 +2,11 @@ import { getElement, randomNumber, months } from "./utils.js";
 (function () {
   "use strict";
 
-  // prettier-ignore
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
+  /*
+  =============
+  DOM Targets
+  =============
+  */
   const form = getElement("form");
   const containerWorkouts = getElement(".workouts");
   const inputType = getElement(".form__input--type");
@@ -13,7 +15,20 @@ import { getElement, randomNumber, months } from "./utils.js";
   const inputCadence = getElement(".form__input--cadence");
   const inputElevation = getElement(".form__input--elevation");
   const mapEl = getElement("#map");
-  let currentLat, currentLong;
+
+  /*
+  ================
+  Globals 
+  ================
+  */
+  let currentLat, currentLong; // used for populating lat and lang when the page loads
+  let map; // when the leaflet map object gets populated then we can use it elsewhere
+
+  /*
+  ================
+  Functions
+  ================
+  */
 
   /**
    *
@@ -47,22 +62,39 @@ import { getElement, randomNumber, months } from "./utils.js";
     const { currentLat, currentLong } = options;
     const currentLocation = [currentLat, currentLong];
 
-    // learlet map code
-    const map = L.map(mapEl).setView(currentLocation, 13);
+    // leaflet map code
+    map = L.map(mapEl).setView(currentLocation, 13);
+    // console.log({map}); => the leaflet map object
 
+    // set the initial tileLayer which is 'Open Street Map'
     L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
+  }
 
-    L.marker(currentLocation)
-      .addTo(map)
-      .bindPopup("A pretty CSS popup.<br> Easily customizable.")
-      .openPopup();
+  /*
+  ================
+  Events
+  ================
+*/
+
+  function onHandleMapClick() {
+    // console.log("map object", map);
+    if (!map) return;
+
+    map.om;
+  }
+
+  // handle all events inside this function then pass it into the init function as one
+  function eventHandlers() {
+    onHandleMapClick();
   }
 
   /**
-   * initialise the application
+  ================
+  Init function 
+  ================
    */
   async function init() {
     try {
@@ -77,6 +109,8 @@ import { getElement, randomNumber, months } from "./utils.js";
     } catch (error) {
       console.log("Location error:", error);
     }
+
+    eventHandlers();
   }
 
   window.addEventListener("DOMContentLoaded", init);
