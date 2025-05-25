@@ -26,6 +26,7 @@ import { getElement, randomNumber, months } from "./utils.js";
   let map; // when the leaflet map object gets populated then we can use it elsewhere
   let clickedLocations = [];
   let popup = L.popup();
+
   /*
   ================
   Functions
@@ -37,6 +38,7 @@ import { getElement, randomNumber, months } from "./utils.js";
    * @returns {Promise<{lat: number, long: number}>}
    * Function to get the current location of the user.
    */
+
   function getCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -58,8 +60,13 @@ import { getElement, randomNumber, months } from "./utils.js";
   }
 
   /**
-   * Initializes the map using Leaflet.js
+   * Initializes the Leaflet map centered at the given latitude and longitude.
+   *
+   * @param {Object} options - Options for initializing the map.
+   * @param {number} options.currentLat - The latitude to center the map.
+   * @param {number} options.currentLong - The longitude to center the map.
    */
+
   function initialiseMap(options) {
     const { currentLat, currentLong } = options;
     const currentLocation = [currentLat, currentLong];
@@ -81,14 +88,30 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
   */
 
+  /**
+   * Adds a marker to the Leaflet map at the specified position with a popup.
+   *
+   * @param {Object} options - Options for the marker.
+   * @param {number[]} options.position - Array containing latitude and longitude [lat, lng].
+   * @param {string} options.placeholder - Text to display in the marker's popup.
+   */
+
   function addMarkers(options) {
     const position = options.position;
-    const text = options.text;
-
+    const text = options.placeholder;
     // add the leaflet marker chain
     L.marker(position).addTo(map).bindPopup(text).openPopup();
   }
 
+  /**
+   * Handles click events on the Leaflet map.
+   * Adds a marker at the clicked location, stores the coordinates, and logs all clicked locations.
+   *
+   * @param {Object} e - Leaflet map click event object.
+   * @param {Object} e.latlng - Object containing latitude and longitude of the click.
+   * @param {number} e.latlng.lat - Latitude of the clicked point.
+   * @param {number} e.latlng.lng - Longitude of the clicked point.
+   */
   function onHandleMapClick(e) {
     const { latlng } = e;
     const clickedLat = latlng?.lat;
@@ -96,9 +119,10 @@ import { getElement, randomNumber, months } from "./utils.js";
 
     /* add marker to map */
     const clickedPosition = [clickedLat, clickedLong];
+
     addMarkers({
       position: clickedPosition,
-      text: "My pretty CSS popup.<br> Easily customizable.",
+      placeholder: "My pretty CSS popup.<br> Easily customizable.",
     });
 
     /* add marker postions to clickedLocations */
@@ -125,6 +149,14 @@ import { getElement, randomNumber, months } from "./utils.js";
   Init function 
   ================
    */
+
+  /**
+   * Initializes the application by getting the user's current location,
+   * initializing the Leaflet map, and setting up event handlers.
+   *
+   * @returns {Promise<void>} Resolves when initialization is complete.
+   */
+
   async function init() {
     try {
       const { lat, long } = await getCurrentLocation();
