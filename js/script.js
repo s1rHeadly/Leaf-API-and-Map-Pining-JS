@@ -21,11 +21,11 @@ import { getElement, randomNumber, months } from "./utils.js";
   Globals 
   ================
   */
+
   let currentLat, currentLong; // used for populating lat and lang when the page loads
   let map; // when the leaflet map object gets populated then we can use it elsewhere
   let clickedLocations = [];
-
-  console.log(clickedLocations);
+  let popup = L.popup();
   /*
   ================
   Functions
@@ -79,13 +79,21 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
   Events
   ================
-*/
+  */
 
   function onHandleMapClick(e) {
     const { latlng } = e;
     const clickedLat = latlng?.lat;
     const clickedLong = latlng?.lng;
 
+    //add marker to map
+    const clickedPosition = [clickedLat, clickedLong];
+
+    L.marker(clickedPosition).addTo(map);
+    // .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+    // .openPopup();
+
+    // add marker postions to clickedLocations
     const positionClicked = {
       lat: clickedLat,
       long: clickedLong,
@@ -100,7 +108,7 @@ import { getElement, randomNumber, months } from "./utils.js";
   // handle all events inside this function then pass it into the init function as one
   function eventHandlers() {
     if (map) {
-      map.on("click", onHandleMapClick);
+      map.on("click", onHandleMapClick); // this on click event is leaflet speecific
     }
   }
 
