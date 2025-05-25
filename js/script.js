@@ -136,7 +136,7 @@ import { getElement, randomNumber, months } from "./utils.js";
 
     addMarkers({
       position: clickedPosition,
-      placeholder: "My pretty CSS popup.<br> Easily customizable.",
+      placeholder: "some dummy text for now",
     });
 
     /* add marker postions to clickedLocations */
