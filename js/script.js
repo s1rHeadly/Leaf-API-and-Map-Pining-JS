@@ -62,11 +62,11 @@ import { getElement, randomNumber, months } from "./utils.js";
     const { currentLat, currentLong } = options;
     const currentLocation = [currentLat, currentLong];
 
-    // leaflet map code
+    // set the leafletmap
     map = L.map(mapEl).setView(currentLocation, 13);
     // console.log({map}); => the leaflet map object
 
-    // set the initial tileLayer which is 'Open Street Map'
+    // set the initial leaflet tileLayer which is 'Open Street Map'
     L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -79,16 +79,15 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
 */
 
-  function onHandleMapClick() {
-    // console.log("map object", map);
-    if (!map) return;
-
-    map.om;
+  function onHandleMapClick(e) {
+    console.log("clicked", e);
   }
 
   // handle all events inside this function then pass it into the init function as one
   function eventHandlers() {
-    onHandleMapClick();
+    if (map) {
+      map.on("click", onHandleMapClick);
+    }
   }
 
   /**
