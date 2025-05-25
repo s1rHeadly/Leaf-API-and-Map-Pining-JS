@@ -25,7 +25,6 @@ import { getElement, randomNumber, months } from "./utils.js";
   let currentLat, currentLong; // used for populating lat and lang when the page loads
   let map; // when the leaflet map object gets populated then we can use it elsewhere
   let clickedLocations = [];
-  let popup = L.popup();
 
   /*
   ================
@@ -72,7 +71,10 @@ import { getElement, randomNumber, months } from "./utils.js";
     const currentLocation = [currentLat, currentLong];
 
     // set the leafletmap
-    map = L.map(mapEl).setView(currentLocation, 13);
+    map = L.map(mapEl, {
+      closePopupOnClick: false,
+      markerZoomAnimation: true,
+    }).setView(currentLocation, 13);
     // console.log({map}); => the leaflet map object
 
     // set the initial leaflet tileLayer which is 'Open Street Map'
@@ -100,7 +102,19 @@ import { getElement, randomNumber, months } from "./utils.js";
     const position = options.position;
     const text = options.placeholder;
     // add the leaflet marker chain
-    L.marker(position).addTo(map).bindPopup(text).openPopup();
+    L.marker(position, {
+      riseOnHover: true,
+      keyboard: true,
+    })
+      .addTo(map)
+      .bindPopup(text, {
+        autoClose: false,
+        closeOnClick: false,
+        maxWidth: 250,
+        minWidth: 100,
+        className: "running-popup",
+      })
+      .openPopup();
   }
 
   /**
@@ -167,6 +181,8 @@ import { getElement, randomNumber, months } from "./utils.js";
         currentLat,
         currentLong,
       });
+
+      console.log({ currentLat, currentLong });
     } catch (error) {
       console.log("Location error:", error);
     }
