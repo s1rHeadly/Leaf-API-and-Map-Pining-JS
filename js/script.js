@@ -12,8 +12,14 @@ import { getElement, randomNumber, months } from "./utils.js";
   const inputDuration = getElement(".form__input--duration");
   const inputCadence = getElement(".form__input--cadence");
   const inputElevation = getElement(".form__input--elevation");
+  const mapEl = getElement("#map");
   let currentLat, currentLong;
 
+  /**
+   *
+   * @returns {Promise<{lat: number, long: number}>}
+   * Function to get the current location of the user.
+   */
   function getCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -34,14 +40,40 @@ import { getElement, randomNumber, months } from "./utils.js";
     });
   }
 
+  /**
+   * Initializes the map using Leaflet.js
+   */
+  function initialiseMap(options) {
+    const { currentLat, currentLong } = options;
+    const currentLocation = [currentLat, currentLong];
+
+    // learlet map code
+    const map = L.map(mapEl).setView(currentLocation, 13);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    L.marker(currentLocation)
+      .addTo(map)
+      .bindPopup("A pretty CSS popup.<br> Easily customizable.")
+      .openPopup();
+  }
+
+  /**
+   * initialise the application
+   */
   async function init() {
     try {
       const { lat, long } = await getCurrentLocation();
       currentLat = lat;
       currentLong = long;
-
-      console.log("Latitude:", currentLat);
-      console.log("Longitude:", currentLong);
+      // evoke the map and once that promise is resolved with the at and long, pass the values back to where this function is created
+      initialiseMap({
+        currentLat,
+        currentLong,
+      });
     } catch (error) {
       console.log("Location error:", error);
     }
