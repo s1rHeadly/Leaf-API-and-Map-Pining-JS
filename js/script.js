@@ -23,7 +23,9 @@ import { getElement, randomNumber, months } from "./utils.js";
   */
   let currentLat, currentLong; // used for populating lat and lang when the page loads
   let map; // when the leaflet map object gets populated then we can use it elsewhere
+  let clickedLocations = [];
 
+  console.log(clickedLocations);
   /*
   ================
   Functions
@@ -80,7 +82,19 @@ import { getElement, randomNumber, months } from "./utils.js";
 */
 
   function onHandleMapClick(e) {
-    console.log("clicked", e);
+    const { latlng } = e;
+    const clickedLat = latlng?.lat;
+    const clickedLong = latlng?.lng;
+
+    const positionClicked = {
+      lat: clickedLat,
+      long: clickedLong,
+    };
+
+    clickedLocations.push(positionClicked);
+
+    // Log the whole array
+    console.log("All clicked locations:", clickedLocations);
   }
 
   // handle all events inside this function then pass it into the init function as one
