@@ -24,6 +24,7 @@ import { getElement, randomNumber, months } from "./utils.js";
 
   let currentLat, currentLong; // used for populating lat and lang when the page loads
   let map; // when the leaflet map object gets populated then we can use it elsewhere
+  let lastClickedPosition = null;
   let clickedLocations = [];
 
   /*
@@ -107,13 +108,15 @@ import { getElement, randomNumber, months } from "./utils.js";
       keyboard: true,
     })
       .addTo(map)
-      .bindPopup(text, {
-        autoClose: false,
-        closeOnClick: false,
-        maxWidth: 250,
-        minWidth: 100,
-        className: "running-popup",
-      })
+      .bindPopup(
+        L.popup({
+          autoClose: false,
+          closeOnClick: false,
+          maxWidth: 250,
+          minWidth: 100,
+          className: "running-popup",
+        }).setContent(`<p>${text}</p>`)
+      )
       .openPopup();
   }
 
@@ -127,17 +130,19 @@ import { getElement, randomNumber, months } from "./utils.js";
    * @param {number} e.latlng.lng - Longitude of the clicked point.
    */
   function onHandleMapClick(e) {
+    /* remove the class of hidden from the form if it exists */
+    form.classList.contains("hidden") && form.classList.remove("hidden");
+
+    /* immediately focus on the inputDistance form field */
+    inputDistance.focus();
+
+    /* get our values froim the event */
     const { latlng } = e;
     const clickedLat = latlng?.lat;
     const clickedLong = latlng?.lng;
 
     /* add marker to map */
-    const clickedPosition = [clickedLat, clickedLong];
-
-    addMarkers({
-      position: clickedPosition,
-      placeholder: "some dummy text for now",
-    });
+    lastClickedPosition = [clickedLat, clickedLong];
 
     /* add marker postions to clickedLocations */
     const positionClicked = {
@@ -145,10 +150,25 @@ import { getElement, randomNumber, months } from "./utils.js";
       long: clickedLong,
     };
 
+    // data gets sent to the form
+
     clickedLocations.push(positionClicked);
 
     /* Log the whole array */
     console.log("All clicked locations:", clickedLocations);
+  }
+
+  function onFormSumbission(e) {
+    e.preventDefault();
+    if (!lastClickedPosition) {
+      alert("Please click on the map to select a location.");
+      return;
+    }
+
+    addMarkers({
+      position: lastClickedPosition,
+      placeholder: "some dummy text for now",
+    });
   }
 
   /* MAIN EVENT HANDLER FUNCTION */
@@ -156,6 +176,8 @@ import { getElement, randomNumber, months } from "./utils.js";
     if (map) {
       map.on("click", onHandleMapClick); // this on click event is leaflet specific
     }
+
+    form.addEventListener("submit", (e) => onFormSumbission(e));
   } /*CLOSE MAIN EVENT HANDLER FUNCTION */
 
   /**
