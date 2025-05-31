@@ -77,8 +77,6 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
   */
 
-  /
-
   function addMarkers(options) {
     const position = options.position;
     const text = options.placeholder;
@@ -100,7 +98,6 @@ import { getElement, randomNumber, months } from "./utils.js";
       .openPopup();
   }
 
-  
   function onHandleMapClick(e) {
     /* remove the class of hidden from the form if it exists */
     form.classList.contains("hidden") && form.classList.remove("hidden");
@@ -150,8 +147,6 @@ import { getElement, randomNumber, months } from "./utils.js";
 
     form.addEventListener("submit", (e) => onFormSumbission(e));
   } /*CLOSE MAIN EVENT HANDLER FUNCTION */
-
-  
 
   async function init() {
     try {
