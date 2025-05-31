@@ -33,12 +33,6 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
   */
 
-  /**
-   *
-   * @returns {Promise<{lat: number, long: number}>}
-   * Function to get the current location of the user.
-   */
-
   function getCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -58,14 +52,6 @@ import { getElement, randomNumber, months } from "./utils.js";
       );
     });
   }
-
-  /**
-   * Initializes the Leaflet map centered at the given latitude and longitude.
-   *
-   * @param {Object} options - Options for initializing the map.
-   * @param {number} options.currentLat - The latitude to center the map.
-   * @param {number} options.currentLong - The longitude to center the map.
-   */
 
   function initialiseMap(options) {
     const { currentLat, currentLong } = options;
@@ -91,13 +77,7 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
   */
 
-  /**
-   * Adds a marker to the Leaflet map at the specified position with a popup.
-   *
-   * @param {Object} options - Options for the marker.
-   * @param {number[]} options.position - Array containing latitude and longitude [lat, lng].
-   * @param {string} options.placeholder - Text to display in the marker's popup.
-   */
+  /
 
   function addMarkers(options) {
     const position = options.position;
@@ -120,15 +100,7 @@ import { getElement, randomNumber, months } from "./utils.js";
       .openPopup();
   }
 
-  /**
-   * Handles click events on the Leaflet map.
-   * Adds a marker at the clicked location, stores the coordinates, and logs all clicked locations.
-   *
-   * @param {Object} e - Leaflet map click event object.
-   * @param {Object} e.latlng - Object containing latitude and longitude of the click.
-   * @param {number} e.latlng.lat - Latitude of the clicked point.
-   * @param {number} e.latlng.lng - Longitude of the clicked point.
-   */
+  
   function onHandleMapClick(e) {
     /* remove the class of hidden from the form if it exists */
     form.classList.contains("hidden") && form.classList.remove("hidden");
@@ -151,7 +123,6 @@ import { getElement, randomNumber, months } from "./utils.js";
     };
 
     // data gets sent to the form
-
     clickedLocations.push(positionClicked);
 
     /* Log the whole array */
@@ -180,18 +151,7 @@ import { getElement, randomNumber, months } from "./utils.js";
     form.addEventListener("submit", (e) => onFormSumbission(e));
   } /*CLOSE MAIN EVENT HANDLER FUNCTION */
 
-  /**
-  ================
-  Init function 
-  ================
-   */
-
-  /**
-   * Initializes the application by getting the user's current location,
-   * initializing the Leaflet map, and setting up event handlers.
-   *
-   * @returns {Promise<void>} Resolves when initialization is complete.
-   */
+  
 
   async function init() {
     try {
