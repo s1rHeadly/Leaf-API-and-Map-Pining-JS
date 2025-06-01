@@ -33,7 +33,7 @@ import { getElement, randomNumber, months } from "./utils.js";
   ================
   */
 
-  function getCurrentLocation() {
+  async function getCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject("Geolocation is not supported by this browser.");
