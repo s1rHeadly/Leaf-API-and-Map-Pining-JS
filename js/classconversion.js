@@ -186,6 +186,9 @@ import { getElement, randomNumber, months } from "./utils.js";
         position: this.lastClickedPosition,
         text: `Workout: ${type}, Distance: ${distance} km`,
       });
+
+      // hide the form when the form is submitted
+      this.form.classList.add("hidden");
     } // close _onFormSubmission function
 
     _updateSelect(e) {
