@@ -8,7 +8,7 @@ import { getElement, randomNumber, months } from "./utils.js";
     - This includes the this_init() function
     */
     constructor() {
-      //1. DOM targets
+      //1. Get DOM targets
       this.form = getElement("form");
       this.containerWorkouts = getElement(".workouts");
       this.inputType = getElement(".form__input--type");
@@ -18,14 +18,14 @@ import { getElement, randomNumber, months } from "./utils.js";
       this.inputElevation = getElement(".form__input--elevation");
       this.mapEl = getElement("#map");
 
-      //2. globals
+      //2. Create Globals
       this.currentLat = null;
       this.currentLong = null;
       this.map = null;
       this.lastClickedPosition = null;
       this.clickedLocations = [];
 
-      //3. start the app
+      //3. Start the App
       this._init(); // start the app
     }
 
@@ -49,7 +49,7 @@ import { getElement, randomNumber, months } from "./utils.js";
       }
 
       this._eventHandlers(); // we'll fill this next
-    } // close init
+    } // close _init function
 
     async _getCurrentLocation() {
       return new Promise((resolve, reject) => {
@@ -69,7 +69,7 @@ import { getElement, randomNumber, months } from "./utils.js";
           }
         );
       });
-    } // close _getCurrentLocation
+    } // close _getCurrentLocation function
 
     _initialiseMap(options) {
       const { currentLat, currentLong } = options;
@@ -86,7 +86,7 @@ import { getElement, randomNumber, months } from "./utils.js";
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(this.map);
-    } // close _initialiseMap
+    } // close _initialiseMap function
 
     _addMarkers(options) {
       const position = options.position;
@@ -107,7 +107,7 @@ import { getElement, randomNumber, months } from "./utils.js";
           }).setContent(`<p>${text}</p>`)
         )
         .openPopup();
-    } // close _addMarkers
+    } // close _addMarkers function
 
     _onHandleMapClick(e) {
       if (this.form.classList.contains("hidden")) {
@@ -136,7 +136,7 @@ import { getElement, randomNumber, months } from "./utils.js";
 
       // data gets sent to the form
       this.clickedLocations.push(positionClicked);
-    } // close _onHandleMapClick
+    } // close _onHandleMapClick function
 
     _onFormSubmission(e) {
       e.preventDefault();
@@ -186,11 +186,10 @@ import { getElement, randomNumber, months } from "./utils.js";
         position: this.lastClickedPosition,
         text: `Workout: ${type}, Distance: ${distance} km`,
       });
-    }
+    } // close _onFormSubmission function
 
     _updateSelect(e) {
       const { target } = e;
-
       const value = target.value;
 
       const cadenceRow = this.inputCadence.closest(".form__row");
@@ -200,23 +199,26 @@ import { getElement, randomNumber, months } from "./utils.js";
       cadenceRow.classList.remove("form__row--hidden");
       elevationRow.classList.remove("form__row--hidden");
 
+      // create the map
       const selected = {
         cycling: elevationRow,
         running: cadenceRow,
       };
 
+      // guard clause
       if (selected[value]) {
         selected[value].classList.add("form__row--hidden");
       }
-    } // close  _updateSelect
+    } // close  _updateSelect function
 
     _eventHandlers() {
+      // guard clause
       if (this.map) {
         this.map.on("click", this._onHandleMapClick.bind(this)); // bind here
       }
       this.form.addEventListener("submit", this._onFormSubmission.bind(this)); // bind here
       this.inputType.addEventListener("change", this._updateSelect.bind(this)); // bind here
-    } // close evenHandler
+    } // close _eventHandlers
   }
 
   /* Only expose for testing in dev as IFFIE is not window scoped */
