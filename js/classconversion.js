@@ -32,7 +32,7 @@ import { getElement, randomNumber, months } from "./utils.js";
     /* Methods outside of the constructor */
 
     async _init() {
-      // holds getCurrentLocation and initialiseMap functions
+      // holds _getCurrentLocation and _initialiseMap functions
       try {
         const { lat, long } = await this._getCurrentLocation();
         this.currentLat = lat;
