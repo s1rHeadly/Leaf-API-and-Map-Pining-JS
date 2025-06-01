@@ -191,7 +191,7 @@ import { getElement, randomNumber, months } from "./utils.js";
         currentLong,
       });
 
-      // console.log({ currentLat, currentLong });
+      console.log({ currentLat, currentLong });
     } catch (error) {
       console.log("Location error:", error);
     }
