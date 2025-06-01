@@ -100,12 +100,17 @@ import { getElement, randomNumber, months } from "./utils.js";
 
   function onHandleMapClick(e) {
     /* remove the class of hidden from the form if it exists */
-    form.classList.contains("hidden") && form.classList.remove("hidden");
+    if (form.classList.contains("hidden")) {
+      form.classList.remove("hidden");
+
+      // Force update based on the current select value
+      updateSelect({ target: inputType });
+    }
 
     /* immediately focus on the inputDistance form field */
     inputDistance.focus();
 
-    /* get our values froim the event */
+    /* get our values from the event */
     const { latlng } = e;
     const clickedLat = latlng?.lat;
     const clickedLong = latlng?.lng;
@@ -123,20 +128,45 @@ import { getElement, randomNumber, months } from "./utils.js";
     clickedLocations.push(positionClicked);
 
     /* Log the whole array */
-    console.log("All clicked locations:", clickedLocations);
+    // console.log("All clicked locations:", clickedLocations);
   }
 
   function onFormSumbission(e) {
     e.preventDefault();
+
+    // clear all input fields on the form
+    //prettier-ignore
+    inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value = "";
+
     if (!lastClickedPosition) {
       alert("Please click on the map to select a location.");
       return;
     }
-
+    // evoke addMarkers function
     addMarkers({
       position: lastClickedPosition,
       placeholder: "some dummy text for now",
     });
+  }
+
+  function updateSelect(e) {
+    const { target } = e;
+
+    const value = target.value;
+
+    const cadenceRow = inputCadence.closest(".form__row");
+    const elevationRow = inputElevation.closest(".form__row");
+
+    // Remove the hidden class from both rows first
+    cadenceRow.classList.remove("form__row--hidden");
+    elevationRow.classList.remove("form__row--hidden");
+
+    const selected = {
+      cycling: elevationRow,
+      running: cadenceRow,
+    };
+
+    selected[value].classList.add("form__row--hidden");
   }
 
   /* MAIN EVENT HANDLER FUNCTION */
@@ -146,6 +176,8 @@ import { getElement, randomNumber, months } from "./utils.js";
     }
 
     form.addEventListener("submit", (e) => onFormSumbission(e));
+
+    inputType.addEventListener("change", (e) => updateSelect(e));
   } /*CLOSE MAIN EVENT HANDLER FUNCTION */
 
   async function init() {
@@ -159,7 +191,7 @@ import { getElement, randomNumber, months } from "./utils.js";
         currentLong,
       });
 
-      console.log({ currentLat, currentLong });
+      // console.log({ currentLat, currentLong });
     } catch (error) {
       console.log("Location error:", error);
     }
