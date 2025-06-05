@@ -24,9 +24,9 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
       this.map = null;
       this.lastClickedPosition = null;
       this.clickedLocations = [];
-      (this.isWorkoutValid = false),
-        //3. Start the App
-        this._init(); // start the app
+      this.isWorkoutValid = false;
+      //3. Start the App
+      this._init(); // start the app
     }
 
     /* Methods outside of the constructor */
