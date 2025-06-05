@@ -25,3 +25,7 @@ export const months = [
   "November",
   "December",
 ];
+
+export function validNumber(...anyAmountOfArgs) {
+  return anyAmountOfArgs.every((val) => Number.isFinite(val) && val > 0);
+}

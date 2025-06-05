@@ -1,4 +1,4 @@
-import { getElement, randomNumber, months } from "./utils.js";
+import { getElement, randomNumber, months, validNumber } from "./utils.js";
 
 (function () {
   "use strict";
@@ -24,9 +24,9 @@ import { getElement, randomNumber, months } from "./utils.js";
       this.map = null;
       this.lastClickedPosition = null;
       this.clickedLocations = [];
-
-      //3. Start the App
-      this._init(); // start the app
+      (this.isWorkoutValid = false),
+        //3. Start the App
+        this._init(); // start the app
     }
 
     /* Methods outside of the constructor */
@@ -138,59 +138,6 @@ import { getElement, randomNumber, months } from "./utils.js";
       this.clickedLocations.push(positionClicked);
     } // close _onHandleMapClick function
 
-    _onFormSubmission(e) {
-      e.preventDefault();
-      // Extract values and convert to numbers
-      const distance = +this.inputDistance.value;
-      const duration = +this.inputDuration.value;
-      const cadence = +this.inputCadence.value;
-      const elevation = +this.inputElevation.value;
-      const type = this.inputType.value;
-
-      // Validate inputs helper
-      function validNumber(...anyAmountOfArgs) {
-        return anyAmountOfArgs.every((val) => Number.isFinite(val) && val > 0);
-      }
-
-      // Validate distance and duration always
-      if (!validNumber(distance, duration)) {
-        alert("Please enter positive numbers for distance and duration.");
-        return;
-      }
-
-      // Validate cadence if running
-      if (type === "running" && !validNumber(elevation)) {
-        alert("Please enter a positive number for cadence.");
-        return;
-      }
-
-      // Validate elevation if cycling (can be positive or negative but finite)
-      if (type === "cycling" && !Number.isFinite(cadence)) {
-        alert("Please enter a valid number for elevation gain.");
-        return;
-      }
-
-      if (!this.lastClickedPosition) {
-        alert("Please click on the map to select a location.");
-        return;
-      }
-
-      // Clear inputs after validation and processing
-      this.inputDistance.value = "";
-      this.inputDuration.value = "";
-      this.inputCadence.value = "";
-      this.inputElevation.value = "";
-
-      // Add marker with a message showing workout type and distance
-      this._addMarkers({
-        position: this.lastClickedPosition,
-        text: `Workout: ${type}, Distance: ${distance} km`,
-      });
-
-      // hide the form when the form is submitted
-      this.form.classList.add("hidden");
-    } // close _onFormSubmission function
-
     _updateSelect(e) {
       const { target } = e;
       const value = target.value;
@@ -219,9 +166,78 @@ import { getElement, randomNumber, months } from "./utils.js";
       if (this.map) {
         this.map.on("click", this._onHandleMapClick.bind(this)); // bind here
       }
-      this.form.addEventListener("submit", this._onFormSubmission.bind(this)); // bind here
+      this.form.addEventListener("submit", this._submitNewWorkout.bind(this)); // bind here
       this.inputType.addEventListener("change", this._updateSelect.bind(this)); // bind here
     } // close _eventHandlers
+
+    _resetForm() {
+      // Clear inputs after validation and processing
+      this.inputDistance.value = "";
+      this.inputDuration.value = "";
+      this.inputCadence.value = "";
+      this.inputElevation.value = "";
+
+      // hide the form when the form is submitted
+      this.form.classList.add("hidden");
+    }
+
+    _validateWorkoutData() {
+      this.isWorkoutValid = false;
+      // Extract values and convert to numbers
+      const distance = +this.inputDistance.value;
+      const duration = +this.inputDuration.value;
+      const cadence = +this.inputCadence.value;
+      const elevation = +this.inputElevation.value;
+      const type = this.inputType.value;
+
+      // Validate distance and duration always
+      if (!validNumber(distance, duration)) {
+        alert("Please enter positive numbers for distance and duration.");
+        return (this.isWorkoutValid = false);
+      }
+
+      // Validate cadence if running
+      if (type === "running" && !validNumber(elevation)) {
+        alert("Please enter a positive number for cadence.");
+        return false;
+      }
+
+      // Validate elevation if cycling (can be positive or negative but finite)
+      if (type === "cycling" && !Number.isFinite(cadence)) {
+        alert("Please enter a valid number for elevation gain.");
+        return false;
+      }
+
+      if (!this.lastClickedPosition) {
+        alert("Please click on the map to select a location.");
+        return false;
+      }
+
+      return true;
+    }
+
+    _submitNewWorkout(e) {
+      e.preventDefault();
+
+      const type = this.inputType.value;
+      const distance = +this.inputDistance.value;
+
+      console.log(type, distance);
+
+      const isValid = this._validateWorkoutData();
+
+      if (isValid) {
+        this.isWorkoutValid = true;
+
+        // Add marker with a message showing workout type and distance
+        this._addMarkers({
+          position: this.lastClickedPosition,
+          text: `Workout: ${type}, Distance: ${distance} km`,
+        });
+      }
+
+      this._resetForm();
+    } // close _onFormSubmission function
   }
 
   /* Only expose for testing in dev as IFFIE is not window scoped */
