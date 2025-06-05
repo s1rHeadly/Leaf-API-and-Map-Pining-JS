@@ -193,7 +193,7 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
       // Validate distance and duration always
       if (!validNumber(distance, duration)) {
         alert("Please enter positive numbers for distance and duration.");
-        return (this.isWorkoutValid = false);
+        return false;
       }
 
       // Validate cadence if running
@@ -218,6 +218,8 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
 
     _submitNewWorkout(e) {
       e.preventDefault();
+
+      if (!this._validateWorkoutData()) return;
 
       const type = this.inputType.value;
       const distance = +this.inputDistance.value;
