@@ -3,6 +3,82 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
 (function () {
   "use strict";
 
+  /* 
+  ==============================
+  Workout Class
+  =============================
+  This is the Parent Class for the Workout Types
+  Look at the the frontend using the App class and see what we need from that class in the Workout Class
+
+  We have Running and Cycling => Two Child classes from the Workout class (Do later)
+  - but each of the child classes has 
+    - map coordinates
+    - distance
+    - duration
+
+    WE ALSO NEED TO ADD
+     - A DATE 
+     - ID FOR EACH INSTANTIATION MADE
+  */
+
+  class Workout {
+    // in the latest JS we do not need to set these vars as this.date = date => we can leave them here
+    // also note these can be private fields ie #date, or #id
+    date = new Date();
+    id = +Date.now().toString().slice(-6); // last 6 nums of the Date.now()
+    constructor(coords, distance, duration) {
+      this.coords = coords; // [lat, long]
+      this.distance = distance; // in km
+      this.duration = duration; // in minutes
+    }
+  }
+
+  /* 
+  ==============================
+  Child Classes from Workout Class (Running and Cycling)
+  =============================
+ */
+
+  class Running extends Workout {
+    constructor(coords, distance, duration, cadence) {
+      super(coords, distance, duration);
+      this.cadence = cadence; // this is an extra property
+      // call the calcPace immediately
+      this.calcPace();
+    } // close contstructor
+
+    calcPace() {
+      // this.pace is a new property we add to the calcpace function, then call it inside the constructor so we its run immediately
+      // remember: any function or listener called inside the constructor is evoked when a new instantiation of a class is created!
+      this.pace = this.duration / (this.distance / 60);
+    }
+  }
+
+  class Cycling extends Workout {
+    constructor(coords, distance, duration, elevationGain) {
+      super(coords, distance, duration); // this is an extra property
+      this.elevationGain = elevationGain;
+      this.calcSpeed();
+    } // close contstructor
+
+    calcSpeed() {
+      // kmph
+      this.speed = this.distance / this.duration;
+    }
+  }
+
+  // testing (look at the values we need!!!)
+  // const running1 = new Running([45, -12], 5.7, 4.8, 455);
+  // const cycling1 = new Cycling([35, -34], 8, 23, 120);
+
+  // console.log({ running1, cycling1 });
+
+  /*
+  
+  ===================
+  Main App Arcitecture
+  ==================
+  */
   class App {
     /*Whatever is in the constructor will run when a new Class in instantiated
     - This includes the this_init() function
@@ -112,7 +188,6 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
     _onHandleMapClick(e) {
       if (this.form.classList.contains("hidden")) {
         this.form.classList.remove("hidden");
-
         // Force update based on the current select value
         this._updateSelect({ target: this.inputType });
       }
