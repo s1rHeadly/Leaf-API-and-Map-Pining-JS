@@ -168,6 +168,7 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
     _addMarkers(options) {
       const position = options.position;
       const text = options.text;
+      const borderColor = options.border;
       // add the leaflet marker chain
       L.marker(position, {
         riseOnHover: true,
@@ -180,7 +181,7 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
             closeOnClick: false,
             maxWidth: 250,
             minWidth: 100,
-            className: "running-popup",
+            className: `${borderColor}-popup`,
           }).setContent(`<p>${text}</p>`)
         )
         .openPopup();
@@ -332,6 +333,7 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
         this._addMarkers({
           position: this.lastClickedPosition,
           text: `Workout: ${type}, Distance: ${distance} km`,
+          border: type,
         });
       }
 
