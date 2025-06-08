@@ -13,12 +13,13 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
   */
   class Workout {
     date = new Date();
-    id = +Date.now().toString().slice(-6);
 
-    constructor(coords, distance, duration) {
+    constructor(coords, distance, duration, id = null) {
       this.coords = coords; // [lat, lng]
       this.distance = distance; // in km
       this.duration = duration; // in minutes
+      this.id = id ?? randomNumber();
+      // immediately evoke methods
       this._setDescription(); // automatically generate description
     }
 
@@ -39,13 +40,14 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
   class Running extends Workout {
     type = "running";
 
-    constructor(coords, distance, duration, cadence) {
-      super(coords, distance, duration);
+    constructor(coords, distance, duration, cadence, id = null) {
+      super(coords, distance, duration, id); // we use super to get the values from the parent class
       this.cadence = cadence;
-      this.calcPace();
+      this._calcPace(); //evoke calcPace() inside the constructor
     }
 
-    calcPace() {
+    _calcPace() {
+      // create calcPace
       this.pace = this.duration / (this.distance / 60);
     }
   }
@@ -59,21 +61,22 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
   class Cycling extends Workout {
     type = "cycling";
 
-    constructor(coords, distance, duration, elevationGain) {
-      super(coords, distance, duration);
+    constructor(coords, distance, duration, elevationGain, id = null) {
+      super(coords, distance, duration, id);
       this.elevationGain = elevationGain;
-      this.calcSpeed();
+      this.calcSpeed(); // evoke calcSpeed inside the constructor
     }
 
     calcSpeed() {
+      // create calcSpeed()
       this.speed = this.distance / this.duration;
     }
   }
 
   // Testing instantiations
-  const running1 = new Running([45, -12], 5.7, 4.8, 455);
-  const cycling1 = new Cycling([35, -34], 8, 23, 120);
-  console.log({ running1, cycling1 });
+  // const running1 = new Running([45, -12], 5.7, 4.8, 455);
+  // const cycling1 = new Cycling([35, -34], 8, 23, 120);
+  // console.log({ running1, cycling1 });
 
   /*
   ==============================
@@ -113,6 +116,8 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
         this.currentLong = long;
 
         this._initialiseMap({ currentLat: lat, currentLong: long });
+
+        this._loadLocalStorage(); // load saved workouts and show markers
       } catch (error) {
         console.log("Location error:", error);
       }
@@ -150,6 +155,7 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
     }
 
     _addMarkers(workout) {
+      // console.log({ workout });
       const { coords, description, type } = workout;
       L.marker(coords)
         .addTo(this.map)
@@ -187,13 +193,20 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
       cadenceRow.classList.remove("form__row--hidden");
       elevationRow.classList.remove("form__row--hidden");
 
-      const selected = {
-        cycling: elevationRow,
-        running: cadenceRow,
-      };
-
-      if (selected[value]) {
-        selected[value].classList.add("form__row--hidden");
+      if (value === "running") {
+        this.inputElevation
+          .closest(".form__row")
+          .classList.add("form__row--hidden");
+        this.inputCadence
+          .closest(".form__row")
+          .classList.remove("form__row--hidden");
+      } else if (value === "cycling") {
+        this.inputCadence
+          .closest(".form__row")
+          .classList.add("form__row--hidden");
+        this.inputElevation
+          .closest(".form__row")
+          .classList.remove("form__row--hidden");
       }
     }
 
@@ -213,24 +226,65 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
       this.form.classList.add("hidden");
     }
 
+    _setLocalStorage(array) {
+      localStorage.setItem("locations", JSON.stringify(array));
+    }
+
+    _loadLocalStorage() {
+      const data = localStorage.getItem("locations");
+      if (!data) return;
+
+      // Parse the stored array of workouts
+      const workoutsArray = JSON.parse(data);
+
+      // Because the stored objects lose their class methods,
+      // you should re-instantiate them as Running or Cycling instances:
+
+      this.#locations = workoutsArray
+        .map((obj) => {
+          if (obj.type === "running") {
+            return new Running(
+              obj.coords,
+              obj.distance,
+              obj.duration,
+              obj.cadence,
+              obj.id
+            );
+          } else if (obj.type === "cycling") {
+            return new Cycling(
+              obj.coords,
+              obj.distance,
+              obj.duration,
+              obj.elevationGain,
+              obj.id
+            );
+          }
+          return null;
+        })
+        .filter(Boolean);
+
+      // Optionally, render markers for the loaded workouts:
+      this.#locations.forEach((workout) => this._addMarkers(workout));
+    }
+
     _validateWorkoutData() {
       const distance = +this.inputDistance.value;
       const duration = +this.inputDuration.value;
       const cadence = +this.inputCadence.value;
       const elevation = +this.inputElevation.value;
-      const type = this.inputType.value;
+      const type = this.inputType.value; // selection of runningn or cycling
 
       if (!validNumber(distance, duration)) {
         alert("Please enter positive numbers for distance and duration.");
         return false;
       }
 
-      if (type === "running" && !validNumber(elevation)) {
+      if (type === "running" && !validNumber(cadence)) {
         alert("Please enter a positive number for cadence.");
         return false;
       }
 
-      if (type === "cycling" && !validNumber(cadence)) {
+      if (type === "cycling" && !validNumber(elevation)) {
         alert("Please enter a positive number for elevation gain.");
         return false;
       }
@@ -254,7 +308,9 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
       const cadence = +this.inputCadence.value;
       const elevation = +this.inputElevation.value;
 
-      let workout;
+      console.log("Cadence value:", cadence); // 👈 add this
+
+      let workout; //declare var to hold each workout
 
       if (type === "running") {
         workout = new Running(
@@ -272,9 +328,10 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
         );
       }
 
-      this.#locations.push(workout);
-      this._addMarkers(workout);
-      this._resetForm();
+      this.#locations.push(workout); // push each workout to the locations array
+      this._setLocalStorage(this.#locations);
+      this._addMarkers(workout); // adds the workout to the addMarkers Method
+      this._resetForm(); // then call resetForm metho
     }
   }
 
