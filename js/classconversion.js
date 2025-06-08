@@ -68,10 +68,10 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
   }
 
   // testing (look at the values we need!!!)
-  // const running1 = new Running([45, -12], 5.7, 4.8, 455);
-  // const cycling1 = new Cycling([35, -34], 8, 23, 120);
+  const running1 = new Running([45, -12], 5.7, 4.8, 455);
+  const cycling1 = new Cycling([35, -34], 8, 23, 120);
 
-  // console.log({ running1, cycling1 });
+  console.log({ running1, cycling1 });
 
   /*
   
@@ -83,6 +83,8 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
     /*Whatever is in the constructor will run when a new Class in instantiated
     - This includes the this_init() function
     */
+    #locations = []; // we can add vars here instead of using 'this.clickedLocations = [];
+
     constructor() {
       //1. Get DOM targets
       this.form = getElement("form");
@@ -99,7 +101,6 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
       this.currentLong = null;
       this.map = null;
       this.lastClickedPosition = null;
-      this.clickedLocations = [];
       this.isWorkoutValid = false;
       //3. Start the App
       this._init(); // start the app
@@ -119,7 +120,7 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
           currentLong: this.currentLong,
         });
 
-        console.log("Current position:", this.currentLat, this.currentLong);
+        // console.log("Current position:", this.currentLat, this.currentLong);
       } catch (error) {
         console.log("Location error:", error);
       }
@@ -200,17 +201,8 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
       const clickedLat = latlng?.lat;
       const clickedLong = latlng?.lng;
 
-      /* add marker to map */
+      /* update this.lastClickedPosition with the lat and long from the map */
       this.lastClickedPosition = [clickedLat, clickedLong];
-
-      /* add marker postions to clickedLocations */
-      const positionClicked = {
-        lat: clickedLat,
-        long: clickedLong,
-      };
-
-      // data gets sent to the form
-      this.clickedLocations.push(positionClicked);
     } // close _onHandleMapClick function
 
     _updateSelect(e) {
@@ -258,7 +250,7 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
 
     _validateWorkoutData() {
       this.isWorkoutValid = false;
-      // Extract values and convert to numbers
+
       const distance = +this.inputDistance.value;
       const duration = +this.inputDuration.value;
       const cadence = +this.inputCadence.value;
@@ -271,15 +263,15 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
         return false;
       }
 
-      // Validate cadence if running
+      // Validate elevation if running (cadence is hidden)
       if (type === "running" && !validNumber(elevation)) {
-        alert("Please enter a positive number for cadence.");
+        alert("Please enter a positive number for elevation.");
         return false;
       }
 
-      // Validate elevation if cycling (can be positive or negative but finite)
-      if (type === "cycling" && !Number.isFinite(cadence)) {
-        alert("Please enter a valid number for elevation gain.");
+      // Validate cadence if cycling (elevation is hidden)
+      if (type === "cycling" && !validNumber(cadence)) {
+        alert("Please enter a positive number for cadence.");
         return false;
       }
 
@@ -294,17 +286,47 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
     _submitNewWorkout(e) {
       e.preventDefault();
 
+      let currentWorkout;
+
+      // stop execution is the validation returns false
       if (!this._validateWorkoutData()) return;
-
-      const type = this.inputType.value;
-      const distance = +this.inputDistance.value;
-
-      console.log(type, distance);
 
       const isValid = this._validateWorkoutData();
 
       if (isValid) {
         this.isWorkoutValid = true;
+
+        // get the type of workout value (running or cycling)
+        const type = this.inputType.value;
+        const distance = +this.inputDistance.value;
+        const duration = +this.inputDuration.value;
+        const cadence = +this.inputCadence.value; // Add + to convert to number
+        const elevationGain = +this.inputElevation.value;
+
+        // console.log(" _submitNewWorkout", { type, distance, duration,cadance, elevationGain }); // get the type
+
+        if (type === "running") {
+          // create new Running Class (update currentWorkout Var)
+          currentWorkout = new Running(
+            this.lastClickedPosition,
+            distance,
+            duration,
+            elevationGain
+          );
+        }
+
+        if (type === "cycling") {
+          // create new Running Class (update currentWorkout Var)
+          currentWorkout = new Cycling(
+            this.lastClickedPosition,
+            distance,
+            duration,
+            cadence
+          );
+        }
+
+        // push to locations array
+        this.#locations.push(currentWorkout);
 
         // Add marker with a message showing workout type and distance
         this._addMarkers({
@@ -317,10 +339,16 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
     } // close _onFormSubmission function
   }
 
-  /* Only expose for testing in dev as IFFIE is not window scoped */
-  const testApp = new App();
-  window.app = testApp;
+  /* 
+  ==============================
+  Start App
+  =============================
+ */
 
-  /*  Not Testing, but creating an App instance */
+  /* Only expose for testing in dev as IFFE function is not scoped to the window object */
+  const initialLoad = new App();
+  window.app = initialLoad; // go into the console and type 'app'
+
+  /*  otherwise ... Not Testing, but creating an App instance */
   // const myApp = new App();
 })();
