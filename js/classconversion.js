@@ -24,9 +24,9 @@ import { getElement, randomNumber, months, validNumber } from "./utils.js";
 
     _setDescription() {
       const calendarMonths = months;
-      this.description = `${
+      this.description = `${this.date.getDate()} ${
         calendarMonths[this.date.getMonth()]
-      } ${this.date.getDate()}`;
+      } ${this.date.getFullYear()}`;
     }
   }
 
